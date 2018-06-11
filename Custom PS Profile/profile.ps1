@@ -11,5 +11,7 @@ function prompt {
     write-host $($(Get-Location).Path.replace($home, "~").replace("\", "/")) -foreground green -noNewLine
     write-host $(if ($nestedpromptlevel -ge 1) { '>>' }) -noNewLine
     return "> "
-function exp { explorer.exe . }
+}
+function exp {
+    Invoke-Item .
 }
