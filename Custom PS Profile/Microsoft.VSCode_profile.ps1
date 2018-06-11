@@ -12,3 +12,6 @@ function prompt {
     write-host $(if ($nestedpromptlevel -ge 1) { '>>' }) -noNewLine
     return "> "
 }
+function exp {
+    Invoke-Item .
+}
