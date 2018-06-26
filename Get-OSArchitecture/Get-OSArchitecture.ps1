@@ -1,34 +1,33 @@
-function Get-OSArchitecture {
-    [cmdletbinding()]
-    param(
-        [parameter(ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
-        [string[]]$ComputerName = $env:computername
+Get-OsInfoFromAdComputers.ps1
+
+Function Get-ADComputersTestConnection {
+    Param(
+        [switch]$showErrors
     )
-
-    begin {}
-
-    process {
-
-        foreach ($Computer in $ComputerName) {
-            if (Test-Connection -ComputerName $Computer -Count 1 -ea 0) {
-                Write-Verbose "$Computer is online"
-                $OS = (Get-WmiObject -computername $computer -class Win32_OperatingSystem ).Caption
-                if ((Get-WmiObject -Class Win32_OperatingSystem -ComputerName $Computer -ea 0).OSArchitecture -eq '64-bit') {
-                    $architecture = "64-Bit"
-                }
-                else {
-                    $architecture = "32-Bit"
-                }
-
-                $OutputObj = New-Object -Type PSObject
-                $OutputObj | Add-Member -MemberType NoteProperty -Name ComputerName -Value $Computer.ToUpper()
-                $OutputObj | Add-Member -MemberType NoteProperty -Name Architecture -Value $architecture
-                $OutputObj | Add-Member -MemberType NoteProperty -Name OperatingSystem -Value $OS
-                $OutputObj
-            }
+    ([adsisearcher]"objectcategory=computer").findall() |
+        ForEach-Object {
+        try {
+            Test-Connection -ComputerName ([adsi]$_.path).cn -BufferSize 16 `
+            -Count 1 -TimeToLive 1 -EA stop
         }
-    }
-
-    end {}
-
-}
+        Catch [system.exception] {
+            if ($showErrors)
+            { $error[0].tostring() }
+        }
+    } #end foreach-object
+} #End function Get-ADComputersTestConnection
+Function Get-OsInfo {
+    Param(
+        [string]$computer
+    )
+    Get-WmiObject -Class Win32_OperatingSystem -ComputerName $computer
+} #end function Get-OsInfo
+# *** EntryPoint to Script ***
+Get-ADComputersTestConnection |
+    ForEach-Object {
+    Get-OsInfo -computer $_.address } |
+    Sort-Object -Property osarchitecture |
+    Format-Table -Property @{ Label = "name"; Expression = {$_.csname} },
+@{ Label = "os-bits"; Expression = {$_.osArchitecture} },
+@{ Label = "OsEdition" ; Expression = {$_.caption} } -AutoSize |
+    Tee-Object -FilePath c:\fso\osreport.txt
