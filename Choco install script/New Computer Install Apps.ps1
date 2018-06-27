@@ -29,5 +29,6 @@ choco install toggl -v
 choco install keypirinha -v
 choco install whatsapp -v
 choco install discord -v
-choco install
+choco install spotify -v --ignore-checksums
+
 
