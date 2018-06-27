@@ -19,7 +19,6 @@ choco install vscode -v
 choco install vscode-icons -v
 choco install rsat -v
 choco install windirstat -v
-choco install spotify -v
 choco install slack -v
 choco install lastpass -v
 choco install everything -v
