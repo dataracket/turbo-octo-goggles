@@ -30,5 +30,5 @@ choco install keypirinha -v
 choco install whatsapp -v
 choco install discord -v
 choco install spotify -v --ignore-checksums
-
+choco install screentogif
 
