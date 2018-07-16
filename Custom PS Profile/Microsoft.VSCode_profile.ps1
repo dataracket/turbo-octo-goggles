@@ -3,6 +3,10 @@ Clear-Host
 Write-Host "Beast mode active. Go get 'em, tiger."
 function Get-Time { return $(get-date | ForEach-Object { $_.ToLongTimeString() } ) }
 function prompt {
+    $host.UI.RawUI.WindowTitle = Get-Location
+    $Host.UI.RawUI.ForegroundColor = "white"
+    $Host.UI.RawUI.BackgroundColor = "black"
+    Clear-Host
     # Write the time
     write-host "[" -noNewLine
     write-host $(Get-Time) -foreground yellow -noNewLine
@@ -15,3 +19,4 @@ function prompt {
 function exp {
     Invoke-Item .
 }
+function wipe { $Host.UI.RawUI.ForegroundColor = "white"; $Host.UI.RawUI.BackgroundColor = "black"; Clear-Host; }
