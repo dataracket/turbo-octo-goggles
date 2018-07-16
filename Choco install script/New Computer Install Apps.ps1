@@ -19,7 +19,6 @@ choco install vscode -v
 choco install vscode-icons -v
 choco install rsat -v
 choco install windirstat -v
-choco install spotify -v
 choco install slack -v
 choco install lastpass -v
 choco install everything -v
@@ -30,5 +29,6 @@ choco install toggl -v
 choco install keypirinha -v
 choco install whatsapp -v
 choco install discord -v
-choco install
+choco install spotify -v --ignore-checksums
+choco install screentogif
 
