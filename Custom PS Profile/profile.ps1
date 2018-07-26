@@ -2,6 +2,7 @@ Set-Location C:\
 $host.UI.RawUI.WindowTitle = Get-Location
 $Host.UI.RawUI.ForegroundColor = "white"
 $Host.UI.RawUI.BackgroundColor = "black"
+.$env:USERPROFILE\Documents\WindowsPowerShell\shelljump\shelljump.ps1
 Clear-Host
 Write-Host "Beast mode active. Go get 'em, tiger."
 function Get-Time { return $(get-date | ForEach-Object { $_.ToLongTimeString() } ) }
