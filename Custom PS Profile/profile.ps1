@@ -1,12 +1,80 @@
+$ProVersion = "v0.0.1"
+$ProName = "| TekPS $ProVersion |"
+<#
+Author: Alex Gust aka TekGoose
+
+Update Notes:
+Version 0.0.1:
+    - Cleaned entire script
+    - Added versioning
+    - Hello World!
+#>
+
+#TekGoose Customizations:
 Set-Location C:\
 $host.UI.RawUI.WindowTitle = Get-Location
 $Host.UI.RawUI.ForegroundColor = "white"
 $Host.UI.RawUI.BackgroundColor = "black"
-.$env:USERPROFILE\Documents\WindowsPowerShell\shelljump\shelljump.ps1
-Clear-Host
-Write-Host "Beast mode active. Go get 'em, tiger."
-function Get-Time { return $(get-date | ForEach-Object { $_.ToLongTimeString() } ) }
+
+function PrintMenu {
+
+    Write-Host(" ----------------------- ")
+    Write-Host("$ProName")
+    Write-Host(" ----------------------- ")
+    Write-Host('Type "GUI" to launch GUI interface!')
+    Write-Host("")
+    Write-Host("Command             Function")
+    Write-Host("-------             --------")
+    Write-Host -ForegroundColor Red ("cl                  Clear Shell and Reprint Command Menu")
+    Write-Host -ForegroundColor Red ("CLACMenu            Retrieve CLAC custom cmdlets")
+    Write-Host("CheckProcess        Retrieve System Process Information")
+    Write-Host("CrossCertRm         Remove Inoperable Certificates")
+    Write-Host("GPR                 Group Policy (Remote)")
+    Write-Host("HuntUser            Query SCCM For Last System Logged On By Specified User")
+    Write-Host("InstallApplication  Silent Install EXE, MSI, or MSP files")
+    Write-Host("JavaCache           Clear Java Cache")
+    Write-Host("LastBoot            Get Last Reboot Time")
+    Write-Host("NetMSG              On-screen Message For Specified Workstation(s)")
+    Write-Host("NewADuser           Create New Active Directory Users From SAAR Forms")
+    Write-Host("Nithins             Opens Nithin's SCCM Client Tool")
+    Write-Host("RDP                 Remote Desktop")
+    Write-Host("REARMOffice         Rearm Office 2013 Activation")
+    Write-Host("REARMWindows        Rearm Windows 7 OS Activation")
+    Write-Host("Reboot              Force Restart")
+    Write-Host("RmPrint             Clear Printer Drivers")
+    Write-Host("RmUserProf          Clear User Profiles")
+    Write-Host("SCCM                Active Directory/SCCM Console")
+    Write-Host("SWcheck             Check Installed Software")
+    Write-Host("SYS                 All Remote System Info")
+    Write-Host("UpdateProfile       Update PowerShell Profile (Will Overwrite Current Version & Any Changes)")
+    Write-Host("")
+    Write-Host("")
+    Write-Host -ForegroundColor Green "Beast mode active. Go get 'em, tiger."
+}#End PrintMenu
+function Get-Time {
+<#
+.SYNOPSIS
+    Used to get the current time and export it to the prompt.
+
+.DESCRIPTION
+    N/A
+
+.EXAMPLE
+    Get-Time
+#>
+    return $(get-date | ForEach-Object { $_.ToLongTimeString() } )
+}
 function prompt {
+<#
+.SYNOPSIS
+    Used to change the prompt in PS to add a timestamp and customize color
+
+.DESCRIPTION
+    At the beginning of every prompt, adds the current time as a string. Customizes color of Get-Location
+
+.EXAMPLE
+    prompt
+#>
     # Write the time
     write-host "[" -noNewLine
     write-host $(Get-Time) -foreground yellow -noNewLine
@@ -19,10 +87,102 @@ function prompt {
 function exp {
     Invoke-Item .
 }
-function wipe { $Host.UI.RawUI.ForegroundColor = "white"; $Host.UI.RawUI.BackgroundColor = "black"; Clear-Host; }
+function cl {
+    <#
+.SYNOPSIS
+    Used to clear current PowerShell window
 
+.DESCRIPTION
+    Clears screen (same as clear) but, writes created 'PrintMenu' back onto the main shell for function reference
 
+.EXAMPLE
+    cl
+#>
 
+    #Clear Shell Prompt
+    Clear-Host
+    PrintMenu
+}#End cl
+
+function HuntUser {
+<#
+.SYNOPSIS
+    Retrieve workstation(s) last logged on by user (SAM Account Name)
+
+.DESCRIPTION
+    The HuntUser function will retrieve workstation(s) by the last logged on user (SAM Account Name). This queries SCCM; accuracy will depend on the last time each workstation has communicated with SCCM.
+
+.EXAMPLE
+    HuntUser dewittj
+#>
+
+Param(
+
+    [Parameter(Mandatory=$true)]
+    [String[]]$SamAccountName,
+
+    [Parameter(ValueFromPipeline=$true)]
+    [String]$SiteName="ABC",
+
+    [Parameter(ValueFromPipeline=$true)]
+    [String]$SCCMServer="SERVER1234",
+
+    [Parameter(ValueFromPipeline=$true)]
+    [String]$SCCMNameSpace="root\sms\site_$SiteName",
+
+    $i=0,
+    $j=0
+)
+
+    function QuerySCCM {
+
+        foreach ($User in $SamAccountName) {
+
+            Write-Progress -Activity "Retrieving Last Logged On Computers By SAM Account Name..." -Status ("Percent Complete:" + "{0:N0}" -f ((($i++) / $SAMAccountName.count) * 100) + "%") -CurrentOperation "Processing $($User)..." -PercentComplete ((($j++) / $SAMAccountName.count) * 100)
+
+            $Computername = (Get-WmiObject -Namespace $SCCMNameSpace -Computername $SCCMServer -Query "select Name from sms_r_system where LastLogonUserName='$User'").Name
+
+                foreach ($Computer in $Computername) {
+
+                    [pscustomobject] @{
+
+                        SAMAccountName = "$User"
+                        LastComputer = "$Computer"
+                }
+            }
+        }
+    }
+
+    QuerySCCM
+
+}#End HuntUser
+
+function UpdateProfile {
+<#
+.SYNOPSIS
+    Update PowerShell profile to current repository content.
+
+.DESCRIPTION
+    Update PowerShell profile to current repository content.
+
+.EXAMPLE
+    UpdateProfile
+#>
+
+    $NetworkLocation = "$env:USERPROFILE\OneDrive\_VS\GitHub\turbo-octo-goggles\Custom PS Profile\profile.ps1"
+    $MyDocuments = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
+    $MyDocuments2 = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Profile.ps1"
+    $MyDocuments3 = [environment]::GetFolderPath("mydocuments") + "\WindowsPowerShell\Microsoft.VSCode_profile.ps1"
+
+    #Overwrite current $Profile for PowerShell and PowerShell ISE
+    Copy-Item -path "$NetworkLocation" -destination "$MyDocuments" -Force
+    Copy-Item -path "$NetworkLocation" -destination "$MyDocuments2" -Force
+    Copy-Item -path "$NetworkLocation" -destination "$MyDocuments3" -Force
+
+    #Reload PowerShell
+    Powershell
+
+}#End UpdateProfile
 
 ############### Setup Parameter autocomplete Hack #################
 
@@ -146,31 +306,29 @@ $CustomModuleDirectory | ForEach-Object {
         }
     }
     else {
-        Write-Warning -Message "$_ does not exists.  Please ensure you have the correct directory set in side your powershell profile.ps1."
+        Write-Warning -Message "$_ does not exist.  Please ensure you have the correct directory set inside your powershell profile.ps1."
         Write-Warning -Message "Run '`$profile | Select-Object *' to see the file location of all your profiles."
     }
 }
 
-#Create Get-Menu function
-
-function Get-Menu {
+function CLACMenu {
     <#
 .Synopsis
-   Creates a visual menu of all custom CMDLETS.
+   Creates a visual menu of all custom CLAC CMDLETS.
 .DESCRIPTION
-   Creates a visual menu of all custom CMDLETS.
+   Creates a visual menu of all custom CLAC CMDLETS.
 .EXAMPLE
-   Get-Menu
+   CLACMenu
 
    Lists menu.
 
 .EXAMPLE
-   Get-Menu -includedescription
+   CLACMenu -includedescription
 
    This menu and includes descriptions
 
 .EXAMPLE
-   Get-Menu -Type 'Active Directory Tools'
+   CLACMenu -Type 'Active Directory Tools'
 
    Creates menu and only includes active directory tools.
 #>
@@ -232,5 +390,4 @@ function Get-Menu {
 #Run get menu function with default values.
 Write-Host -ForegroundColor Green 'Run "Get-Menu -IncludeDescription" for a menu with command descriptions.'
 
-Clear-Host
-Write-Host "Beast mode active. Go get 'em, tiger."
+cl
