@@ -155,7 +155,7 @@ function UpdateProfile {
     UpdateProfile
 #>
 
-    $NetworkLocation = "$env:USERPROFILE\OneDrive\_VS\GitHub\turbo-octo-goggles\Custom PS Profile\profile.ps1"
+    $NetworkLocation = "$env:OneDrive\_VS\GitHub\turbo-octo-goggles\Custom PS Profile\profile.ps1"
     $MyDocuments = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
     $MyDocuments2 = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Profile.ps1"
     $MyDocuments3 = [environment]::GetFolderPath("mydocuments") + "\WindowsPowerShell\Microsoft.VSCode_profile.ps1"
@@ -241,7 +241,7 @@ function LastBoot {
 		C:\> jump st2
 		C:\Program Files\Sublime Text 2> marks
 		st2        -> C:\Program Files\Sublime Text 2
-		C:\Program Files\Sublime Text 2> unmark st2
+        C:\Program Files\Sublime Text 2> unmark st2
 #>
 
 [System.Reflection.Assembly]::LoadWithPartialName("System.Web.Extensions") | Out-Null
@@ -379,27 +379,6 @@ Set-Alias unmark Remove-Bookmark
 #Load bookmarks from previous session.
 Read-Bookmarks
 
-# Tab Expansion override compatibility, comment out these two
-# blocks to leave tab completion alone.
-if (Test-Path Function:\TabExpansion) {
-    Rename-Item Function:\TabExpansion TabExpansionBackupJump
-}
-
-function TabExpansion([string] $line, [string] $lastword) {
-    if ( $line.StartsWith("jump ") -or $line.StartsWith("unmark ") ) {
-        return [string[]]$Global:bookmarks.Keys;
-    }
-    else {
-        # Fall back to the tab completion that was in place.
-        if (Test-Path Function:\TabExpansionBackupJump) {
-            TabExpansionBackupJump $line $lastword
-        }
-        else {
-            return $null;
-        }
-    }
-}
-
 ############### Setup Parameter autocomplete Hack #################
 
 <#
@@ -456,7 +435,7 @@ $GetADObjectScriptBlock = {
             $TempObj | Add-Member -MemberType NoteProperty -name $currentProperty -value ([string]$currentObject.Properties.Item($currentProperty))
         }
         #Export Results
-        $TempObj | Select-Object samaccountname, displayname, physicaldeliveryofficename, title, department,mail | Export-Csv -Path $UserTempCSV -NoTypeInformation -Force -Append
+        $TempObj | Select-Object samaccountname, displayname, physicaldeliveryofficename, title, department, mail | Export-Csv -Path $UserTempCSV -NoTypeInformation -Force -Append
     }
 }
 Get-Job | Remove-Job -Force
@@ -466,8 +445,9 @@ Start-Job -ScriptBlock $GetADObjectScriptBlock | Out-Null
 $Completion_ComputerName = {
     Import-Csv -Path "$env:TEMP\ALLDOMAINCOMPUTERS.csv" | ForEach-Object {
         try {
-            New-Object System.Management.Automation.CompletionResult $_.cn, $_.cn, 'ParameterValue',"$($_.operatingsystem) - $($_.distinguishedname)"
-        } catch {}
+            New-Object System.Management.Automation.CompletionResult $_.cn, $_.cn, 'ParameterValue', "$($_.operatingsystem) - $($_.distinguishedname)"
+        }
+        catch {}
     }
 }
 
@@ -476,8 +456,9 @@ $Completion_Username = {
     Import-Csv -Path "$env:TEMP\ALLDOMAINUSERS.csv" | ForEach-Object {
         Try {
             $currentUser = $_
-            New-Object System.Management.Automation.CompletionResult $currentUser.samaccountname, $currentUser.samaccountname, 'ParameterValue',"($($currentUser.displayname)) - Office: $($currentUser.physicaldeliveryofficename) - Department: $($currentUser.department) - Title: $($currentUser.title)"
-        } catch {}
+            New-Object System.Management.Automation.CompletionResult $currentUser.samaccountname, $currentUser.samaccountname, 'ParameterValue', "($($currentUser.displayname)) - Office: $($currentUser.physicaldeliveryofficename) - Department: $($currentUser.department) - Title: $($currentUser.title)"
+        }
+        catch {}
     }
 }
 
@@ -486,14 +467,15 @@ $Completion_Email = {
     Import-Csv -Path "$env:TEMP\ALLDOMAINUSERS.csv" | ForEach-Object {
         try {
             $currentUser = $_
-            New-Object System.Management.Automation.CompletionResult $currentUser.Mail, $currentUser.Mail, 'ParameterValue',"($($currentUser.displayname)) - Office: $($currentUser.physicaldeliveryofficename) - Department: $($currentUser.department) - Title: $($currentUser.title)"
-        } catch {}
+            New-Object System.Management.Automation.CompletionResult $currentUser.Mail, $currentUser.Mail, 'ParameterValue', "($($currentUser.displayname)) - Office: $($currentUser.physicaldeliveryofficename) - Department: $($currentUser.department) - Title: $($currentUser.title)"
+        }
+        catch {}
     }
 }
 
-$function:tabexpansion2 = $function:tabexpansion2 -replace 'End\r\n{','End { if ($null -ne $options) { $options += $global:options} else {$options = $global:options}'
+$function:tabexpansion2 = $function:tabexpansion2 -replace 'End\r\n{', 'End { if ($null -ne $options) { $options += $global:options} else {$options = $global:options}'
 #create CustomArgumentCompleters and NativeArgumentCompleters
-$global:options = @{CustomArgumentCompleters = @{};NativeArgumentCompleters = @{}}
+$global:options = @{CustomArgumentCompleters = @{}; NativeArgumentCompleters = @{}}
 #add each CustomArgumentCompleters
 $global:options['CustomArgumentCompleters']['ComputerName'] = $Completion_ComputerName
 $global:options['CustomArgumentCompleters']['Server'] = $Completion_ComputerName
@@ -526,7 +508,6 @@ $CustomModuleDirectory | ForEach-Object {
         Write-Warning -Message "Run '`$profile | Select-Object *' to see the file location of all your profiles."
     }
 }
-
 function CLACMenu {
     <#
 .Synopsis
@@ -600,10 +581,8 @@ function CLACMenu {
         return $menu
     }
     End {
+        Write-Host -ForegroundColor Green 'Run "Get-Menu -IncludeDescription" for a menu with command descriptions.'
     }
 }
-
-#Run get menu function with default values.
-Write-Host -ForegroundColor Green 'Run "Get-Menu -IncludeDescription" for a menu with command descriptions.'
 
 cl
