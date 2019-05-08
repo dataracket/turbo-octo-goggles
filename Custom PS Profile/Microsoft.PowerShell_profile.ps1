@@ -1,4 +1,4 @@
-$ProVersion = "v0.0.1"
+$ProVersion = "v0.0.2"
 $ProName = "| TekPS $ProVersion |"
 <#
 Author: Alex Gust aka TekGoose
