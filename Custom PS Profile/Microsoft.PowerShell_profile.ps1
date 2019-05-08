@@ -157,8 +157,8 @@ function Update-Profile {
 .EXAMPLE
     Update-Profile
 #>
-
-    $NetworkLocation = "D:\OneDrive\_PS\Custom PS Profile\profile.ps1"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dataracket/turbo-octo-goggles/master/Custom%20PS%20Profile/profile.ps1" -OutFile "C:\Temp\profile.ps1"
+    $NetworkLocation = "C:\Temp\profile.ps1"
     $MyDocuments = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
     $MyDocuments2 = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Profile.ps1"
     $MyDocuments3 = [environment]::GetFolderPath("mydocuments") + "\WindowsPowerShell\Microsoft.VSCode_profile.ps1"
@@ -168,8 +168,8 @@ function Update-Profile {
     Copy-Item -path "$NetworkLocation" -destination "$MyDocuments2" -Force
     Copy-Item -path "$NetworkLocation" -destination "$MyDocuments3" -Force
 
-    #Reload PowerShell
-    Powershell
+    #Reload PowerShell (commented out to see errors)
+    #Powershell
 
 }#End UpdateProfile
 
