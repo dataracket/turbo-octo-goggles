@@ -16,7 +16,7 @@ $host.UI.RawUI.WindowTitle = Get-Location
 $Host.UI.RawUI.ForegroundColor = "white"
 $Host.UI.RawUI.BackgroundColor = "black"
 
-function PrintMenu {
+function Menu {
 
     Write-Host(" ----------------------- ")
     Write-Host("$ProName")
@@ -27,15 +27,14 @@ function PrintMenu {
     Write-Host("-------             --------")
     Write-Host("choco               Activates Choco")
     Write-Host -ForegroundColor Red ("cl                  Clear Shell and Reprint Command Menu")
-    Write-Host -ForegroundColor Red ("CLACMenu            Retrieve CLAC custom cmdlets")
+    Write-Host -ForegroundColor Red ("CLACMenu            Retrieve CLAC custom cmdlets. Alias:  clac")
     Write-Host("HuntUser            Query SCCM For Last System Logged On By Specified User")
     Write-Host("LastBoot            Get Last Reboot Time")
     Write-Host("RDP                 Remote Desktop")
     Write-Host("RmUserProf          Clear User Profiles")
     Write-Host("UpdateProfile       Update PowerShell Profile (Will Overwrite Current Version & Any Changes)")
+    Write-Host("Screenfetch")
     Write-Host("")
-    Write-Host("")
-    Write-Host -ForegroundColor Green "Beast mode active. Go get 'em, tiger."
 }#End PrintMenu
 function Get-Time {
 <#
@@ -87,8 +86,12 @@ function cl {
 
     #Clear Shell Prompt
     Clear-Host
-    PrintMenu
+    Write-Host -ForegroundColor Green "Beast mode active. Go get 'em, tiger."
 }#End cl
+
+function off {
+powershell (Add-Type '[DllImport(\"user32.dll\")]^public static extern int SendMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::SendMessage(-1,0x0112,0xF170,2)
+}
 
 function HuntUser {
 <#
@@ -143,7 +146,7 @@ Param(
 
 }#End HuntUser
 
-function UpdateProfile {
+function Update-Profile {
 <#
 .SYNOPSIS
     Update PowerShell profile to current repository content.
@@ -152,10 +155,10 @@ function UpdateProfile {
     Update PowerShell profile to current repository content.
 
 .EXAMPLE
-    UpdateProfile
+    Update-Profile
 #>
 
-    $NetworkLocation = "$env:OneDrive\_VS\GitHub\turbo-octo-goggles\Custom PS Profile\profile.ps1"
+    $NetworkLocation = "D:\OneDrive\_PS\Custom PS Profile\profile.ps1"
     $MyDocuments = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
     $MyDocuments2 = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Profile.ps1"
     $MyDocuments3 = [environment]::GetFolderPath("mydocuments") + "\WindowsPowerShell\Microsoft.VSCode_profile.ps1"
@@ -189,7 +192,7 @@ function RDP {
     )
 
     #Start Remote Desktop Protocol on specifed workstation
-    & "C:\windows\system32\mstsc.exe" /v:$computername /fullscreen
+    & "C:\windows\system32\mstsc.exe" /v:$computername /fullscreen /credential /username agadmin
 }#End RDP
 
 function LastBoot {
@@ -375,6 +378,10 @@ Set-Alias jumps  Get-Bookmarks
 Set-Alias marks  Get-Bookmarks
 Set-Alias mark   New-Bookmark
 Set-Alias unmark Remove-Bookmark
+Set-Alias up Update-Profile
+Set-Alias m Menu
+Set-Alias clac CLACMenu
+Set-Alias sf Screenfetch
 
 #Load bookmarks from previous session.
 Read-Bookmarks
