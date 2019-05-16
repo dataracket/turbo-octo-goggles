@@ -4,6 +4,8 @@ $ProName = "| TekPS $ProVersion |"
 Author: Alex Gust aka TekGoose
 
 Update Notes:
+Version 0.0.2
+    - Updated script to pull from Github repo
 Version 0.0.1:
     - Cleaned entire script
     - Added versioning
