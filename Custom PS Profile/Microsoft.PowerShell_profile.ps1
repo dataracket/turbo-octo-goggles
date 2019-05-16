@@ -4,6 +4,8 @@ $ProName = "| TekPS $ProVersion |"
 Author: Alex Gust aka TekGoose
 
 Update Notes:
+Version 0.0.2
+    - Updated script to pull from Github repo
 Version 0.0.1:
     - Cleaned entire script
     - Added versioning
@@ -21,7 +23,7 @@ function Menu {
     Write-Host(" ----------------------- ")
     Write-Host("$ProName")
     Write-Host(" ----------------------- ")
-    Write-Host('Type "GUI" to launch GUI interface!')
+#    Write-Host('Type "GUI" to launch GUI interface!')
     Write-Host("")
     Write-Host("Command             Function")
     Write-Host("-------             --------")
@@ -32,8 +34,8 @@ function Menu {
     Write-Host("LastBoot            Get Last Reboot Time")
     Write-Host("RDP                 Remote Desktop")
     Write-Host("RmUserProf          Clear User Profiles")
-    Write-Host("UpdateProfile       Update PowerShell Profile (Will Overwrite Current Version & Any Changes)")
-    Write-Host("Screenfetch")
+    Write-Host("Update-Profile       Update PowerShell Profile (Will Overwrite Current Version & Any Changes)")
+    Write-Host("sf                  Activates Screenfetch")
     Write-Host("")
 }#End PrintMenu
 function Get-Time {
@@ -160,7 +162,7 @@ function Update-Profile {
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dataracket/turbo-octo-goggles/master/Custom%20PS%20Profile/profile.ps1" -OutFile "C:\Temp\profile.ps1"
     $NetworkLocation = "C:\Temp\profile.ps1"
     $MyDocuments = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
-    $MyDocuments2 = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\profile.ps1"
+    $MyDocuments2 = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Profile.ps1"
     $MyDocuments3 = [environment]::GetFolderPath("mydocuments") + "\WindowsPowerShell\Microsoft.VSCode_profile.ps1"
 
     #Overwrite current $Profile for PowerShell and PowerShell ISE
