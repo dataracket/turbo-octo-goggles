@@ -30,7 +30,6 @@ function Menu {
     Write-Host("choco               Activates Choco")
     Write-Host -ForegroundColor Red ("cl                  Clear Shell and Reprint Command Menu")
     Write-Host -ForegroundColor Red ("CLACMenu            Retrieve CLAC custom cmdlets. Alias:  clac")
-    Write-Host("HuntUser            Query SCCM For Last System Logged On By Specified User")
     Write-Host("LastBoot            Get Last Reboot Time")
     Write-Host("RDP                 Remote Desktop")
     Write-Host("RmUserProf          Clear User Profiles")
@@ -88,65 +87,12 @@ function cl {
 
     #Clear Shell Prompt
     Clear-Host
-    Write-Host -ForegroundColor Green "Beast mode active. Go get 'em, tiger."
+    Write-Host -ForegroundColor Green "I am a leaf on the wind; watch how I soar."
 }#End cl
 
 function off {
 powershell (Add-Type '[DllImport(\"user32.dll\")]^public static extern int SendMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::SendMessage(-1,0x0112,0xF170,2)
 }
-
-function HuntUser {
-<#
-.SYNOPSIS
-    Retrieve workstation(s) last logged on by user (SAM Account Name)
-
-.DESCRIPTION
-    The HuntUser function will retrieve workstation(s) by the last logged on user (SAM Account Name). This queries SCCM; accuracy will depend on the last time each workstation has communicated with SCCM.
-
-.EXAMPLE
-    HuntUser dewittj
-#>
-
-Param(
-
-    [Parameter(Mandatory=$true)]
-    [String[]]$SamAccountName,
-
-    [Parameter(ValueFromPipeline=$true)]
-    [String]$SiteName="ABC",
-
-    [Parameter(ValueFromPipeline=$true)]
-    [String]$SCCMServer="SERVER1234",
-
-    [Parameter(ValueFromPipeline=$true)]
-    [String]$SCCMNameSpace="root\sms\site_$SiteName",
-
-    $i=0,
-    $j=0
-)
-
-    function QuerySCCM {
-
-        foreach ($User in $SamAccountName) {
-
-            Write-Progress -Activity "Retrieving Last Logged On Computers By SAM Account Name..." -Status ("Percent Complete:" + "{0:N0}" -f ((($i++) / $SAMAccountName.count) * 100) + "%") -CurrentOperation "Processing $($User)..." -PercentComplete ((($j++) / $SAMAccountName.count) * 100)
-
-            $Computername = (Get-WmiObject -Namespace $SCCMNameSpace -Computername $SCCMServer -Query "select Name from sms_r_system where LastLogonUserName='$User'").Name
-
-                foreach ($Computer in $Computername) {
-
-                    [pscustomobject] @{
-
-                        SAMAccountName = "$User"
-                        LastComputer = "$Computer"
-                }
-            }
-        }
-    }
-
-    QuerySCCM
-
-}#End HuntUser
 
 function Update-Profile {
 <#
@@ -159,7 +105,7 @@ function Update-Profile {
 .EXAMPLE
     Update-Profile
 #>
-    Invoke-WebRequest -Uri "https://github.com/dataracket/turbo-octo-goggles/blob/master/Custom%20PS%20Profile/Microsoft.PowerShell_profile.ps1" -OutFile "C:\Temp\profile.ps1"
+    Invoke-WebRequest -Uri "https://github.com/deebyte/turbo-octo-goggles/blob/master/Custom%20PS%20Profile/Microsoft.PowerShell_profile.ps1" -OutFile "C:\Temp\profile.ps1"
     $NetworkLocation = "C:\Temp\profile.ps1"
     $MyDocuments = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
     $MyDocuments2 = [environment]::getfolderpath("mydocuments") + "\WindowsPowerShell\Profile.ps1"
